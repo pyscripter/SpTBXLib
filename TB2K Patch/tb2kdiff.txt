@@ -147,7 +147,7 @@
  initialization
    InitGradientFillFunc;
 --- TB2Dock.pas	Wed Sep 17 16:12:26 2008
-+++ TB2Dock.pas	Sat Jan  2 03:40:42 2021
++++ TB2Dock.pas	Sun Jan 10 12:16:40 2021
 @@ -37,7 +37,12 @@
  {$I TB2Ver.inc}
  
@@ -597,15 +597,7 @@
        SendMessage(W, WM_PAINT, WPARAM(BmpDC), 0);
        BitBlt(DC, 0, 0, CR.Right, CR.Bottom, BmpDC, 0, 0, SRCCOPY);
      finally
-@@ -3185,6 +3408,7 @@
-   OldCurrentDock, NewCurrentDock: TTBDock;
-   NewFloating: Boolean;
-   SaveHandle: HWND;
-+  NewPPI: Integer;
- begin
-   OldCurrentDock := ParentToCurrentDock(Parent);
-   NewCurrentDock := ParentToCurrentDock(AParent);
-@@ -3256,6 +3480,22 @@
+@@ -3256,6 +3479,14 @@
                SetWindowPos(SaveHandle, 0, 0, 0, 0, 0, SWP_FRAMECHANGED or
                  SWP_NOACTIVATE or SWP_NOMOVE or SWP_NOSIZE or SWP_NOZORDER);
              end;
@@ -614,21 +606,13 @@
 +            // CustomDocakbleWindow has a FreeNotification (see TControl.SetParent)
 +            if Assigned(AParent) and not(csLoading in ComponentState)
 +              and (csFreeNotification in ComponentState)
-+            then begin
-+              if AParent is TTBFloatingWindowParent then
-+              begin
-+                NewPPI := Screen.MonitorFromPoint(Point(FloatingPosition.X,
-+                  FloatingPosition.Y)).PixelsPerInch;
-+                AParent.ScaleForPPI(NewPPI);
-+              end else
-+                NewPPI := AParent.CurrentPPI;
-+              ScaleForPPI(NewPPI);
-+            end;
++            then
++              ScaleForPPI(AParent.CurrentPPI);
 +            {$IFEND}
              inherited;
            except
              { Failure is rare, but just in case, restore these back. }
-@@ -3353,12 +3593,12 @@
+@@ -3353,12 +3584,12 @@
    BottomRight.X := Z;
    BottomRight.Y := Z;
    if not LeftRight then begin
@@ -643,7 +627,7 @@
      //if FShowChevron then
      //  Inc(BottomRight.Y, tbChevronSize);
    end;
-@@ -3372,8 +3612,8 @@
+@@ -3372,8 +3603,8 @@
    XMetrics: array[Boolean] of Integer = (SM_CXDLGFRAME, SM_CXFRAME);
    YMetrics: array[Boolean] of Integer = (SM_CYDLGFRAME, SM_CYFRAME);
  begin
@@ -654,7 +638,7 @@
  end;
  
  procedure TTBCustomDockableWindow.GetFloatingNCArea(var TopLeft, BottomRight: TPoint);
-@@ -3382,24 +3622,29 @@
+@@ -3382,24 +3613,29 @@
      TopLeft.X := X;
      TopLeft.Y := Y;
      if ShowCaption then
@@ -688,7 +672,7 @@
    end;
    Result := Bounds(X, Y, Z, Z);
  end;
-@@ -3413,10 +3658,10 @@
+@@ -3413,10 +3649,10 @@
      Result.Y := 0;
    end
    else begin
@@ -702,7 +686,7 @@
        if not(CurrentDock.Position in PositionLeftOrRight) then
          Inc(Result.X, Z)
        else
-@@ -3433,7 +3678,7 @@
+@@ -3433,7 +3669,7 @@
    begin
      InflateRect(R, -DockedBorderSize, -DockedBorderSize);
      if CurrentDock.FAllowDrag then begin
@@ -711,7 +695,7 @@
        if not(CurrentDock.Position in PositionLeftOrRight) then
          Inc(R.Left, Z)
        else
-@@ -3475,7 +3720,7 @@
+@@ -3475,7 +3711,7 @@
        I := P.X - R.Left
      else
        I := P.Y - R.Top;
@@ -720,7 +704,7 @@
        SetCursor(LoadCursor(0, IDC_SIZEALL));
        Message.Result := 1;
        Exit;
-@@ -3591,31 +3836,32 @@
+@@ -3591,31 +3827,32 @@
        else
          Y2 := ClientWidth;
        Inc(Y2, DockedBorderSize);
@@ -761,7 +745,7 @@
          end;
        end;
        if not UsingBackground then begin
-@@ -3635,9 +3881,9 @@
+@@ -3635,9 +3872,9 @@
            DrawEdge(DC, R2, BDR_SUNKENOUTER, BF_RECT)
          else if FCloseButtonHover then
            DrawRaisedEdge(R2, False);
@@ -773,7 +757,7 @@
          DrawButtonBitmap(CreateCloseButtonBitmap);
        end;
      end;
-@@ -3727,6 +3973,22 @@
+@@ -3727,6 +3964,22 @@
    end;
  end;
  
@@ -796,7 +780,7 @@
  procedure TTBCustomDockableWindow.DrawDraggingOutline(const DC: HDC;
    const NewRect, OldRect: TRect; const NewDocking, OldDocking: Boolean);
  var
-@@ -3874,7 +4136,7 @@
+@@ -3874,7 +4127,7 @@
              C := FirstPos.X - LastPos.X
            else
              C := FirstPos.Y - LastPos.Y;
@@ -805,7 +789,7 @@
              WatchForSplit := False;
              FDragSplitting := True;
              SetCursor(LoadCursor(0, SplitCursors[SplitVertical]));
-@@ -3941,15 +4203,15 @@
+@@ -3941,15 +4194,15 @@
        with Control do begin
          Result := False;
  
@@ -824,7 +808,7 @@
            Exit;
  
          { Don't try to dock to the left or right if pointer is above or below
-@@ -3960,8 +4222,8 @@
+@@ -3960,8 +4213,8 @@
  
          { And also distribute ~25 pixels of extra dock detection area to
            the top or bottom side }
@@ -835,7 +819,7 @@
            Exit;
  
          Result := IntersectRect(Temp, R, S);
-@@ -4022,7 +4284,7 @@
+@@ -4022,7 +4275,7 @@
        R2 := GetRectOfMonitorContainingPoint(Pos, True);
        R := R2;
        with GetFloatingBorderSize do
@@ -844,7 +828,7 @@
        if MoveRect.Bottom < R.Top then
          OffsetRect(MoveRect, 0, R.Top-MoveRect.Bottom);
        if MoveRect.Top > R.Bottom then
-@@ -4033,7 +4295,7 @@
+@@ -4033,7 +4286,7 @@
          OffsetRect(MoveRect, R.Right-MoveRect.Left, 0);
  
        GetFloatingNCArea(TL, BR);
@@ -853,7 +837,7 @@
        if MoveRect.Top < I then
          OffsetRect(MoveRect, 0, I-MoveRect.Top);
      end;
-@@ -4394,7 +4656,7 @@
+@@ -4394,7 +4647,7 @@
    else
    if Assigned(DefaultDock) then begin
      FDockRow := ForceDockAtTopRow;
@@ -862,30 +846,28 @@
      Parent := DefaultDock;
    end;
  end;
-@@ -5037,6 +5299,14 @@
-             BorderStyle := bsToolWindow;
-             ShowHint := True;
-             Visible := True;
-+            ParentFont := False;
-+            //Font.Assign(Application.DefaultFont);
+@@ -5033,10 +5286,20 @@
+         NewFloatParent := GetFloatingWindowParentClass.CreateNew(nil);
+         try
+           with NewFloatParent do begin
 +            // The form font is initialized with the font size of the main monitor
 +            // If the main monitor has PPI > 96 and we then scale
 +            // child controls with ParentFont property would have wrong font size
 +            // after we scale the form.  Hence the following:
-+            Font.Height := MulDiv(Font.Height, 96, Screen.PixelsPerInch);
-+
++            ParentFont := False;
++            Font.Assign(ParentFrm.Font);
++            Font.Height := MulDiv(Font.Height, 96, ParentFrm.CurrentPPI);
+             FDockableWindow := Self;
+             BorderStyle := bsToolWindow;
+             ShowHint := True;
+             Visible := True;
++            {$IF CompilerVersion > 31}
++            ScaleForCurrentDPI;
++            {$IFEND}
              { Note: The above line doesn't actually make it visible at this
                point since FShouldShow is still False. }
            end;
-@@ -5051,6 +5321,7 @@
-       FFloatParent.Caption := Caption;
-       Parent := FFloatParent;
-       SetBounds(0, 0, Width, Height);
-+      //FFloatParent.ScaleForCurrentDpi;
-     end
-     else
-       Parent := TBValidToolWindowParentForm(Self);
-@@ -5215,8 +5486,7 @@
+@@ -5215,8 +5478,7 @@
    if FBitmapCache = nil then begin
      FBitmapCache := TBitmap.Create;
      FBitmapCache.Palette := CopyPalette(FBitmap.Palette);
@@ -895,7 +877,7 @@
      if not FTransparent then begin
        { Copy from a possible DIB to our DDB }
        BitBlt(FBitmapCache.Canvas.Handle, 0, 0, FBitmapCache.Width,
-@@ -5411,8 +5681,8 @@
+@@ -5411,8 +5673,8 @@
        Data.ReadIntProc := ReadIntProc;
        Data.ReadStringProc := ReadStringProc;
        Data.ExtraData := ExtraData;
