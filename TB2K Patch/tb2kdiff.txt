@@ -205,7 +205,7 @@
 +    property Width;
 +    property Height;
 +  end;
-+ {$ENDIF}
++ {$IFEND}
 +
 + { TTBFloatingWindowParent - internal }
  

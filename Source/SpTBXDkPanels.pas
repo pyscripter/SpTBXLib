@@ -1465,7 +1465,8 @@ begin
   // See TCustomForm.ScaleForPPIRect, we need to post a message to handle it
   // asynchronously to make sure the parent Form and the MultiDock are scaled
   // first.
-  PostMessage(Self.Handle, CM_SPCHANGESCALE, M, D);
+  if M <> D then
+    PostMessage(Self.Handle, CM_SPCHANGESCALE, M, D);
 end;
 
 procedure TSpTBXCustomMultiDock.CMSPChangeScale(var Message: TMessage);

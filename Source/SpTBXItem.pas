@@ -7039,8 +7039,10 @@ end;
 procedure TSpTBXCustomToolWindow.ChangeScale(M, D: Integer{$IF CompilerVersion >= 31}; isDpiChange: Boolean{$IFEND});
 begin
   inherited;
-  FBarSize.cx := MulDiv(FBarSize.cx, M, D);
-  FBarSize.cy := MulDiv(FBarSize.cy, M, D);
+  if not Docked or not (csLoading in ComponentState) then begin
+    FBarSize.cx := MulDiv(FBarSize.cx, M, D);
+    FBarSize.cy := MulDiv(FBarSize.cy, M, D);
+  end;
 end;
 
 function TSpTBXCustomToolWindow.CalcSize(ADock: TTBDock): TPoint;
