@@ -101,6 +101,9 @@ type
 
   { TSpTBXFontComboBox }
 
+  TSpTBXFontFilterOption = (ffScalableOnly, ffFixedPitchOnly);
+  TSpTBXFontFilterOptions = set of TSpTBXFontFilterOption;
+
   TSpTBXFontComboBoxPreview = class(TCustomControl)
   private
   protected
@@ -118,6 +121,7 @@ type
     FFontNamePreview: Boolean;
     FMaxMRUItems: Integer;
     FMRUCount: Integer;
+    FFilterOptions: TSpTBXFontFilterOptions;
     FPreviewWindow: TSpTBXFontComboBoxPreview;
     FSelectedFont: TFontName;
     FOnFontPreview: TSpTBXEditGetTextEvent;
@@ -127,6 +131,7 @@ type
     procedure SetSelectedFont(const Value: TFontName);
     procedure SetMaxMRUItems(Value: Integer);
     procedure SetFontPreview(const Value: Boolean);
+    procedure SetFilterOptions(const Value: TSpTBXFontFilterOptions);
   protected
     procedure Click; override;
     procedure CloseUp; override;
@@ -142,6 +147,7 @@ type
     function MRUDelete(AFontName: TFontName): Boolean;
     property MRUCount: Integer read FMRUCount;
   published
+    property ItemHeight default 16;
     property Items stored False;
     property AutoDropDownWidth default True;
     property AutoItemHeight default False;
@@ -149,6 +155,7 @@ type
     property FontNamePreview: Boolean read FFontNamePreview write SetFontNamePreview default True;
     property MaxMRUItems: Integer read FMaxMRUItems write SetMaxMRUItems default 5;
     property SelectedFont: TFontName read FSelectedFont write SetSelectedFont;
+    property FilterOptions: TSpTBXFontFilterOptions read FFilterOptions write SetFilterOptions default [];
     property OnFontPreview: TSpTBXEditGetTextEvent read FOnFontPreview write FOnFontPreview;
   end;
 
@@ -188,7 +195,7 @@ type
   end;
 
 { Helpers }
-procedure SpFillFontNames(ADest: TStrings);
+procedure SpFillFontNames(ADest: TStrings; FilterOptions: TSpTBXFontFilterOptions = []);
 
 { Painting helpers }
 procedure SpDrawCheckeredBackground(ACanvas: TCanvas; ARect: TRect);
@@ -208,6 +215,12 @@ var
 
 //WMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWM
 { Helpers }
+type
+  TFontEnumRecord = record
+    Strings: TStringList;
+    FilterOptions: TSpTBXFontFilterOptions;
+  end;
+  PFontEnumRecord = ^TFontEnumRecord;
 
 function EnumFontsProc(EnumLogFontExDV: PEnumLogFontExDV; EnumTextMetric: PEnumTextMetric;
   FontType: DWORD; LParam: LPARAM): Integer; stdcall;
@@ -215,42 +228,53 @@ var
   S: string;
   GlyphIndex: Integer;
   L: TStringList;
+  FilterOptions: TSpTBXFontFilterOptions;
 const
   NTM_PS_OPENTYPE = $00020000;
   NTM_TT_OPENTYPE = $00040000;
 begin
-  L := TStringList(LParam);
+  Result := 1;
+
+  L := PFontEnumRecord(LParam).Strings;
+  FilterOptions := PFontEnumRecord(LParam).FilterOptions;
   GlyphIndex := 0;
   if ((EnumTextMetric.etmNewTextMetricEx.ntmTm.ntmFlags and NTM_TT_OPENTYPE) = NTM_TT_OPENTYPE) or
      ((EnumTextMetric.etmNewTextMetricEx.ntmTm.ntmFlags and NTM_PS_OPENTYPE) = NTM_PS_OPENTYPE) then
     GlyphIndex := 2
-  else
-    if FontType = TRUETYPE_FONTTYPE then
-      GlyphIndex := 1;
+  else if FontType = TRUETYPE_FONTTYPE then
+    GlyphIndex := 1
+  else if ffScalableOnly in FilterOptions then
+    Exit;
+
+  if (ffFixedPitchOnly in FilterOptions) and
+    ((EnumLogFontExDV.elfEnumLogfontEx.elfLogFont.lfPitchAndFamily and Fixed_Pitch) <> Fixed_Pitch)
+  then
+    Exit;
 
   S := EnumLogFontExDV.elfEnumLogfontEx.elfLogFont.lfFaceName;
 
   if (S[1] <> '@') then
     if (L.Count = 0) or not SameText(S, L[L.Count - 1]) then
       L.AddObject(S, Pointer(GlyphIndex));
-
-  Result := 1;
 end;
 
-procedure SpFillFontNames(ADest: TStrings);
+procedure SpFillFontNames(ADest: TStrings; FilterOptions: TSpTBXFontFilterOptions);
 // This will only work on Windows 2000 and above, more info on:
 // http://www.delphipraxis.net/post712587.html&sid=945c12fa9fb826d76e51c80b42109a21#712587
 var
   DC: HDC;
   LFont: TLogFont;
   L: TStringList;
+  FontEnumRecord: TFontEnumRecord;
 begin
   L := TStringList.Create;
+  FontEnumRecord.Strings := L;
+  FontEnumRecord.FilterOptions := FilterOptions;
   DC := GetDC(0);
   try
     FillChar(LFont, SizeOf(LFont), 0);
     LFont.lfCharset := DEFAULT_CHARSET;
-    EnumFontFamiliesEx(DC, LFont, @EnumFontsProc, LPARAM(L), 0);
+    EnumFontFamiliesEx(DC, LFont, @EnumFontsProc, LPARAM(@FontEnumRecord), 0);
     L.Sort;
     ADest.Assign(L);
   finally
@@ -513,7 +537,7 @@ begin
   FScaledFontGlyphImgList := TImageList.CreateSize(12, 12);
   FScaledFontGlyphImgList.ResInstLoad(HInstance, rtBitmap, 'SPTBXTRUETYPE', clFuchsia);
   FScaledFontGlyphImgList.ResInstLoad(HInstance, rtBitmap, 'SPTBXOPENTYPE', clFuchsia);
-  ItemHeight := 23;
+  ItemHeight := 16;
 end;
 
 destructor TSpTBXFontComboBox.Destroy;
@@ -584,7 +608,7 @@ end;
 procedure TSpTBXFontComboBox.DoCalcMaxDropDownWidth;
 begin
   if Items.Count <= 0 then begin
-    SpFillFontNames(Items);
+    SpFillFontNames(Items, FilterOptions);
   end;
 
   inherited;
@@ -675,6 +699,16 @@ begin
       Items.Delete(FMRUCount);
       Dec(FMRUCount);
     end;
+  end;
+end;
+
+procedure TSpTBXFontComboBox.SetFilterOptions(
+  const Value: TSpTBXFontFilterOptions);
+begin
+  if FFilterOptions <> Value then begin
+    FFilterOptions := Value;
+    Items.Clear;
+    DoCalcMaxDropDownWidth;
   end;
 end;
 
