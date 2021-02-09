@@ -38,7 +38,7 @@ interface
 
 {$BOOLEVAL OFF}   // Unit depends on short-circuit boolean evaluation
 {$IF CompilerVersion >= 25} // for Delphi XE4 and up
-  {$LEGACYIFEND ON} // XE4 and up requires $IF to be terminated with $ENDIF instead of $IFEND
+  {$LEGACYIFEND ON} // requires $IF to be terminated with $ENDIF instead of $IFEND
 {$IFEND}
 
 uses
@@ -101,8 +101,10 @@ type
 
   { TSpTBXFontComboBox }
 
-  TSpTBXFontFilterOption = (ffScalableOnly, ffFixedPitchOnly);
-  TSpTBXFontFilterOptions = set of TSpTBXFontFilterOption;
+  TSpTBXFontPitch = (ffScalable, ffMonospaced);
+  TSpTBXFontPitchSet = set of TSpTBXFontPitch;
+  TSpTBXFontType = (ffRaster, ffTrueType, ffOpenType);
+  TSpTBXFontTypeSet = set of TSpTBXFontType;
 
   TSpTBXFontComboBoxPreview = class(TCustomControl)
   private
@@ -121,7 +123,8 @@ type
     FFontNamePreview: Boolean;
     FMaxMRUItems: Integer;
     FMRUCount: Integer;
-    FFilterOptions: TSpTBXFontFilterOptions;
+    FFilterFontPitch: TSpTBXFontPitchSet;
+    FFilterFontType: TSpTBXFontTypeSet;
     FPreviewWindow: TSpTBXFontComboBoxPreview;
     FSelectedFont: TFontName;
     FOnFontPreview: TSpTBXEditGetTextEvent;
@@ -131,7 +134,8 @@ type
     procedure SetSelectedFont(const Value: TFontName);
     procedure SetMaxMRUItems(Value: Integer);
     procedure SetFontPreview(const Value: Boolean);
-    procedure SetFilterOptions(const Value: TSpTBXFontFilterOptions);
+    procedure SetFilterFontPitch(const Value: TSpTBXFontPitchSet);
+    procedure SetFilterFontType(const Value: TSpTBXFontTypeSet);
   protected
     procedure Click; override;
     procedure CloseUp; override;
@@ -155,7 +159,8 @@ type
     property FontNamePreview: Boolean read FFontNamePreview write SetFontNamePreview default True;
     property MaxMRUItems: Integer read FMaxMRUItems write SetMaxMRUItems default 5;
     property SelectedFont: TFontName read FSelectedFont write SetSelectedFont;
-    property FilterOptions: TSpTBXFontFilterOptions read FFilterOptions write SetFilterOptions default [];
+    property FilterFontPitch: TSpTBXFontPitchSet read FFilterFontPitch write SetFilterFontPitch default [ffScalable, ffMonospaced];
+    property FilterFontType: TSpTBXFontTypeSet read FFilterFontType write SetFilterFontType default [ffRaster, ffTrueType, ffOpenType];
     property OnFontPreview: TSpTBXEditGetTextEvent read FOnFontPreview write FOnFontPreview;
   end;
 
@@ -195,7 +200,7 @@ type
   end;
 
 { Helpers }
-procedure SpFillFontNames(ADest: TStrings; FilterOptions: TSpTBXFontFilterOptions = []);
+procedure SpFillFontNames(ADest: TStrings; FilterFontPitch: TSpTBXFontPitchSet; FilterFontType: TSpTBXFontTypeSet);
 
 { Painting helpers }
 procedure SpDrawCheckeredBackground(ACanvas: TCanvas; ARect: TRect);
@@ -218,7 +223,8 @@ var
 type
   TFontEnumRecord = record
     Strings: TStringList;
-    FilterOptions: TSpTBXFontFilterOptions;
+    FilterFontPitch: TSpTBXFontPitchSet;
+    FilterFontType: TSpTBXFontTypeSet;
   end;
   PFontEnumRecord = ^TFontEnumRecord;
 
@@ -228,7 +234,10 @@ var
   S: string;
   GlyphIndex: Integer;
   L: TStringList;
-  FilterOptions: TSpTBXFontFilterOptions;
+  P: TSpTBXFontPitch;
+  T: TSpTBXFontType;
+  FilterFontPitch: TSpTBXFontPitchSet;
+  FilterFontType: TSpTBXFontTypeSet;
 const
   NTM_PS_OPENTYPE = $00020000;
   NTM_TT_OPENTYPE = $00040000;
@@ -236,31 +245,49 @@ begin
   Result := 1;
 
   L := PFontEnumRecord(LParam).Strings;
-  FilterOptions := PFontEnumRecord(LParam).FilterOptions;
+  FilterFontPitch := PFontEnumRecord(LParam).FilterFontPitch;
+  FilterFontType := PFontEnumRecord(LParam).FilterFontType;
+
   GlyphIndex := 0;
   if ((EnumTextMetric.etmNewTextMetricEx.ntmTm.ntmFlags and NTM_TT_OPENTYPE) = NTM_TT_OPENTYPE) or
      ((EnumTextMetric.etmNewTextMetricEx.ntmTm.ntmFlags and NTM_PS_OPENTYPE) = NTM_PS_OPENTYPE) then
-    GlyphIndex := 2
-  else if FontType = TRUETYPE_FONTTYPE then
-    GlyphIndex := 1
-  else if ffScalableOnly in FilterOptions then
-    Exit;
+  begin
+    GlyphIndex := 2;
+    P := ffScalable;
+    T := ffOpenType;
+  end
+  else begin
+    P := ffScalable;
+    case FontType of
+      // DEVICE_FONTTYPE not used
+      RASTER_FONTTYPE: T := ffRaster;
+      //TRUETYPE_FONTTYPE:
+      else
+        begin
+          GlyphIndex := 1;
+          T := ffTrueType;
+        end;
+    end;
+  end;
 
-  if (ffFixedPitchOnly in FilterOptions) and
-    ((EnumLogFontExDV.elfEnumLogfontEx.elfLogFont.lfPitchAndFamily and Fixed_Pitch) <> Fixed_Pitch)
-  then
-    Exit;
+  if (EnumLogFontExDV.elfEnumLogfontEx.elfLogFont.lfPitchAndFamily and FIXED_PITCH) = FIXED_PITCH then
+  begin
+    P := ffMonospaced;
+  end;
+
+  if not (P in FilterFontPitch) or not (T in FilterFontType) then
+    exit;
 
   S := EnumLogFontExDV.elfEnumLogfontEx.elfLogFont.lfFaceName;
-
   if (S[1] <> '@') then
     if (L.Count = 0) or not SameText(S, L[L.Count - 1]) then
       L.AddObject(S, Pointer(GlyphIndex));
 end;
 
-procedure SpFillFontNames(ADest: TStrings; FilterOptions: TSpTBXFontFilterOptions);
+procedure SpFillFontNames(ADest: TStrings; FilterFontPitch: TSpTBXFontPitchSet;
+  FilterFontType: TSpTBXFontTypeSet);
 // This will only work on Windows 2000 and above, more info on:
-// http://www.delphipraxis.net/post712587.html&sid=945c12fa9fb826d76e51c80b42109a21#712587
+// https://www.delphipraxis.net/616082-post.html#712587
 var
   DC: HDC;
   LFont: TLogFont;
@@ -269,7 +296,9 @@ var
 begin
   L := TStringList.Create;
   FontEnumRecord.Strings := L;
-  FontEnumRecord.FilterOptions := FilterOptions;
+  FontEnumRecord.FilterFontPitch := FilterFontPitch;
+  FontEnumRecord.FilterFontType := FilterFontType;
+
   DC := GetDC(0);
   try
     FillChar(LFont, SizeOf(LFont), 0);
@@ -537,6 +566,8 @@ begin
   FScaledFontGlyphImgList := TImageList.CreateSize(12, 12);
   FScaledFontGlyphImgList.ResInstLoad(HInstance, rtBitmap, 'SPTBXTRUETYPE', clFuchsia);
   FScaledFontGlyphImgList.ResInstLoad(HInstance, rtBitmap, 'SPTBXOPENTYPE', clFuchsia);
+  FFilterFontPitch := [ffScalable, ffMonospaced];
+  FFilterFontType := [ffRaster, ffTrueType, ffOpenType];
   ItemHeight := 16;
 end;
 
@@ -548,9 +579,34 @@ begin
 end;
 
 procedure TSpTBXFontComboBox.ChangeScale(M, D: Integer{$IF CompilerVersion >= 31}; isDpiChange: Boolean{$IFEND});
+var
+  I: Integer;
 begin
   inherited;
-  SpDPIScaleImageList(FScaledFontGlyphImgList, M, D);
+
+  // Load scaled glyphs
+  I := MulDiv(12, M, D); // Original size of the glyph is 12 (scaled to 18 and 24)
+  if I >= 24 then I := 24
+  else if I >= 18 then I := 18
+  else I := 12;
+  if I <> FScaledFontGlyphImgList.Width then begin
+    FScaledFontGlyphImgList.Clear;
+    FScaledFontGlyphImgList.SetSize(I, I);
+    case I of
+      12: begin  // 96 PPI, 1x
+            FScaledFontGlyphImgList.ResInstLoad(HInstance, rtBitmap, 'SPTBXTRUETYPE', clFuchsia);
+            FScaledFontGlyphImgList.ResInstLoad(HInstance, rtBitmap, 'SPTBXOPENTYPE', clFuchsia);
+          end;
+      18: begin  // 144 PPI, 1.5x
+            FScaledFontGlyphImgList.ResInstLoad(HInstance, rtBitmap, 'SPTBXTRUETYPE15x', clFuchsia);
+            FScaledFontGlyphImgList.ResInstLoad(HInstance, rtBitmap, 'SPTBXOPENTYPE15x', clFuchsia);
+          end;
+      24: begin  // 192 PPI, 2x
+            FScaledFontGlyphImgList.ResInstLoad(HInstance, rtBitmap, 'SPTBXTRUETYPE20x', clFuchsia);
+            FScaledFontGlyphImgList.ResInstLoad(HInstance, rtBitmap, 'SPTBXOPENTYPE20x', clFuchsia);
+          end;
+    end;
+  end;
 end;
 
 procedure TSpTBXFontComboBox.Click;
@@ -607,10 +663,8 @@ end;
 
 procedure TSpTBXFontComboBox.DoCalcMaxDropDownWidth;
 begin
-  if Items.Count <= 0 then begin
-    SpFillFontNames(Items, FilterOptions);
-  end;
-
+  if Items.Count <= 0 then
+    SpFillFontNames(Items, FilterFontPitch, FFilterFontType);
   inherited;
 end;
 
@@ -702,11 +756,19 @@ begin
   end;
 end;
 
-procedure TSpTBXFontComboBox.SetFilterOptions(
-  const Value: TSpTBXFontFilterOptions);
+procedure TSpTBXFontComboBox.SetFilterFontPitch(const Value: TSpTBXFontPitchSet);
 begin
-  if FFilterOptions <> Value then begin
-    FFilterOptions := Value;
+  if FFilterFontPitch <> Value then begin
+    FFilterFontPitch := Value;
+    Items.Clear;
+    DoCalcMaxDropDownWidth;
+  end;
+end;
+
+procedure TSpTBXFontComboBox.SetFilterFontType(const Value: TSpTBXFontTypeSet);
+begin
+  if FFilterFontType <> Value then begin
+    FFilterFontType := Value;
     Items.Clear;
     DoCalcMaxDropDownWidth;
   end;
