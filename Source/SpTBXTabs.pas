@@ -2407,7 +2407,7 @@ begin
   inherited;
   FTabVisible := True;
   Width := 289;
-  //Height := FDock.Height + PPIScale(2); //has no impact
+  Height := FDock.Height + SpDefaultBorderSize; // Do not scale
   FToolbar.Items.RegisterNotification(ItemNotification);
   DoubleBuffered := False;
 end;

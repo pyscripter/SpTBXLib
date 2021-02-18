@@ -1235,7 +1235,9 @@ type
 
   TSpTBXCustomContainer = class(TSpTBXCustomControl)
   private
+    FBorders: Boolean;
     FOnDrawBackground: TSpTBXDrawEvent;
+    procedure SetBorders(const Value: Boolean);
     procedure CMColorChanged(var Message: TMessage); message CM_COLORCHANGED;
     procedure CMFontChanged(var Message: TMessage); message CM_FONTCHANGED;
     procedure CMTextChanged(var Message: TMessage); message CM_TEXTCHANGED;
@@ -1247,6 +1249,7 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
     procedure DoDrawBackground(ACanvas: TCanvas; ARect: TRect; const PaintStage: TSpTBXPaintStage; var PaintDefault: Boolean); virtual;
     procedure DrawBackground(ACanvas: TCanvas; ARect: TRect); virtual;
+    property Borders: Boolean read FBorders write SetBorders default True;
     property ParentColor default False;
     property OnDrawBackground: TSpTBXDrawEvent read FOnDrawBackground write FOnDrawBackground;
   public
@@ -4578,19 +4581,22 @@ begin
   R := ClientAreaRect;
   if ItemInfo.ToolbarStyle then begin
     if ItemInfo.HasArrow then begin
+      ItemInfo.ComboRect := R;
       if ItemInfo.IsSplit then begin
-        ItemInfo.ComboRect := R;
         Dec(R.Right, SplitBtnArrowSize);
         ItemInfo.ComboRect.Left := R.Right;
       end
       else
         if not IsSpecialDropDown then begin
-          if View.Orientation <> tbvoVertical then
-            ItemInfo.ComboRect := Rect(R.Right - Self.tbDropdownArrowWidth - Self.tbDropdownArrowMargin, 0,
-              R.Right - tbDropdownArrowMargin, R.Bottom)
-          else
-            ItemInfo.ComboRect := Rect(0, R.Bottom - Self.tbDropdownArrowWidth - Self.tbDropdownArrowMargin,
-              R.Right, R.Bottom - Self.tbDropdownArrowMargin);
+          // If the caption is shown calculate the right margin, if the caption
+          // is not visible center the arrow
+          if TextInfo.IsCaptionShown then
+            if View.Orientation <> tbvoVertical then
+              ItemInfo.ComboRect := Rect(R.Right - Self.tbDropdownArrowWidth - Self.tbDropdownArrowMargin, 0,
+                R.Right - Self.tbDropdownArrowMargin, R.Bottom)
+            else
+              ItemInfo.ComboRect := Rect(0, R.Bottom - Self.tbDropdownArrowWidth - Self.tbDropdownArrowMargin,
+                R.Right, R.Bottom - Self.tbDropdownArrowMargin);
         end
         else begin
           // Special DropDown, toolbar item with arrow, image and text. The Image is above the caption
@@ -4612,8 +4618,8 @@ begin
 
     // Draw dropdown arrow
     if PaintDefault and ItemInfo.HasArrow then begin
-      P.X := (ItemInfo.ComboRect.Left + ItemInfo.ComboRect.Right) div 2 - PPIScale(1);
-      P.Y := (ItemInfo.ComboRect.Top + ItemInfo.ComboRect.Bottom) div 2 - PPIScale(1);
+      P.X := (ItemInfo.ComboRect.Left + ItemInfo.ComboRect.Right - 1) div 2;
+      P.Y := (ItemInfo.ComboRect.Top + ItemInfo.ComboRect.Bottom - 1) div 2;
       // Don't draw the arrow if is a split button in Windows, it's
       // painted by the Windows theme.
       if not (ItemInfo.IsSplit and (ItemInfo.SkinType in [sknWindows, sknDelphiStyle])) then begin
@@ -6832,6 +6838,9 @@ begin
       if Assigned(CI) and (CI.Control.Tag <> 0) then
         CI.Control.Tag := MulDiv(CI.Control.Tag, M, D);  // Scale prev size of the anchored ControlItem
     end;
+
+  // Needed for vertical stretched items
+  View.InvalidatePositions;
 end;
 
 procedure TSpTBXToolbar.MouseMove(Shift: TShiftState; X, Y: Integer);
@@ -8051,6 +8060,7 @@ begin
   Color := clNone;
   ParentColor := False;
   SkinManager.AddSkinNotification(Self);
+  FBorders := True;
 
   //DoubleBuffered := True;
 end;
@@ -8127,6 +8137,15 @@ begin
   //
 end;
 
+procedure TSpTBXCustomContainer.SetBorders(const Value: Boolean);
+begin
+  if FBorders <> Value then begin
+    FBorders := Value;
+    Realign;
+    InvalidateBackground;
+  end;
+end;
+
 procedure TSpTBXCustomContainer.InvalidateBackground(InvalidateChildren: Boolean);
 begin
   // Force background repaint, calling invalidate doesn't repaint children controls
@@ -8136,9 +8155,9 @@ begin
   else
     if not (csDestroying in ComponentState) and HandleAllocated then
       if InvalidateChildren then
-        RedrawWindow(Handle, nil, 0, RDW_ERASE or RDW_INVALIDATE or RDW_ALLCHILDREN)
+        RedrawWindow(Handle, nil, 0, RDW_ERASE or RDW_INVALIDATE or RDW_ALLCHILDREN or RDW_FRAME)
       else
-        RedrawWindow(Handle, nil, 0, RDW_ERASE or RDW_INVALIDATE);
+        RedrawWindow(Handle, nil, 0, RDW_ERASE or RDW_INVALIDATE or RDW_FRAME);
 end;
 
 procedure TSpTBXCustomContainer.WMEraseBkgnd(var Message: TMessage);
