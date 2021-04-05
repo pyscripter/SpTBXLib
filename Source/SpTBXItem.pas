@@ -4590,7 +4590,7 @@ begin
         if not IsSpecialDropDown then begin
           // If the caption is shown calculate the right margin, if the caption
           // is not visible center the arrow
-          if TextInfo.IsCaptionShown then
+          //if TextInfo.IsCaptionShown then
             if View.Orientation <> tbvoVertical then
               ItemInfo.ComboRect := Rect(R.Right - Self.tbDropdownArrowWidth - Self.tbDropdownArrowMargin, 0,
                 R.Right - Self.tbDropdownArrowMargin, R.Bottom)
@@ -4629,7 +4629,7 @@ begin
         if ItemInfo.IsSunkenCaption then
           P := Point(P.X + PPIScale(1), P.Y + PPIScale(1));
         SpDrawArrow(Canvas, P.X, P.Y, DropDownC, not ItemInfo.IsVertical, False, PPIScale(2));
-      end;
+     end;
       if not ItemInfo.IsSplit and not IsSpecialDropDown then begin
         if View.Orientation <> tbvoVertical then Dec(R.Right, Self.tbDropdownArrowWidth)
         else Dec(R.Bottom, Self.tbDropdownArrowWidth);
