@@ -1625,7 +1625,7 @@ begin
           TSpTBXTabItem(IV.Item).CustomWidth := TabsWidth
         else
           if IV.Item is TSpTBXRightAlignSpacerItem then
-            TSpTBXRightAlignSpacerItem(IV.Item).CustomWidth := PPIUnScale(RightAlignWidth - GetRightAlignMargin);
+            TSpTBXRightAlignSpacerItem(IV.Item).CustomWidth := RightAlignWidth - GetRightAlignMargin;
       end;
     end;
   finally
@@ -1760,7 +1760,7 @@ begin
 
     // Resize the spacer
     if Assigned(Spacer) then
-      TSpTBXCustomItemAccess(Spacer.Item).CustomWidth := PPIUnScale(SpacerW);
+      TSpTBXCustomItemAccess(Spacer.Item).CustomWidth := SpacerW;
 
     View.UpdatePositions;
   finally
