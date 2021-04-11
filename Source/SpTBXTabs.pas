@@ -614,6 +614,7 @@ var
   DrawState: TThemedTab;
   Details: TThemedElementDetails;
   SkinType: TSpTBXSkinType;
+  NeedToFlip: Boolean;
 begin
   SkinType := SkinManager.GetSkinType;
   if (SkinType = sknNone) and not Checked then
@@ -632,10 +633,11 @@ begin
     end;
     B.Canvas.FillRect(R);
 
+    NeedToFlip := True;
     case SkinType of
       sknNone:
         if Checked then begin
-          Position := ttpTop;  // Don't need to flip
+          NeedToFlip := False;  // Don't need to flip
           B.Canvas.Brush.Color := ACanvas.Brush.Color;
           B.Canvas.FillRect(R);
           ExtCtrls.Frame3D(B.Canvas, R, clWindow, clWindowFrame, 1);
@@ -644,12 +646,11 @@ begin
         end;
       sknWindows, sknDelphiStyle:
         begin
-          case Edge of
-            tedLeft:  DrawState := ttTabItemLeftEdgeNormal;
-            tedRight: DrawState := ttTabItemRightEdgeNormal;
+          NeedToFlip := False;
+          if Position = ttpBottom then
+            DrawState := ttTabItemBothEdgeNormal
           else
             DrawState := ttTabItemNormal;
-          end;
 
           if not Enabled then DrawState := TThemedTab(Ord(DrawState) + 3)
           else
@@ -668,11 +669,11 @@ begin
     end;
 
     // Flip top to bottom
-    if Position = ttpBottom then begin
+    if (Position = ttpBottom) and NeedToFlip then begin
       // Unclear why extra "-1" is needed here.
       FlippedR := R;
-      FlippedR.Top := R.Bottom - 1;
-      FlippedR.Bottom := R.Top - 1;
+      FlippedR.Top := R.Bottom;// - 1;
+      FlippedR.Bottom := R.Top;// - 1;
       B.Canvas.CopyRect(R, B.Canvas, FlippedR);
     end;
 

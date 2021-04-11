@@ -416,7 +416,7 @@ type
     function IsDefaultSkin: Boolean;
     function IsXPThemesEnabled: Boolean;
 
-    procedure AddSkinNotification(AObject: TObject);
+    procedure AddSkinNotification(AObject: TObject; InsertFirst: Boolean = False);
     procedure RemoveSkinNotification(AObject: TObject);
     procedure BroadcastSkinNotification;
 
@@ -3984,9 +3984,15 @@ begin
   end;
 end;
 
-procedure TSpTBXSkinManager.AddSkinNotification(AObject: TObject);
+procedure TSpTBXSkinManager.AddSkinNotification(AObject: TObject; InsertFirst: Boolean);
 begin
-  if FNotifies.IndexOf(AObject) < 0 then FNotifies.Add(AObject);
+  if FNotifies.IndexOf(AObject) < 0 then
+  begin
+    if InsertFirst then
+      FNotifies.Insert(0, AObject)
+    else
+      FNotifies.Add(AObject);
+  end;
 end;
 
 procedure TSpTBXSkinManager.RemoveSkinNotification(AObject: TObject);
