@@ -25,10 +25,11 @@ package SpTBXLib;
 {$DESCRIPTION 'Toolbar2000 -- SpTBXLib'}
 {$RUNONLY}
 {$IMPLICITBUILD ON}
+{$LIBSUFFIX AUTO}
 
 requires
   vcl,
-  tb2k_d12,
+  tb2k,
   rtl,
   vclx;
 

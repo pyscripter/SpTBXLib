@@ -26,10 +26,11 @@ package SpTBXLibDsgn;
 {$DESCRIPTION 'Toolbar2000 -- SpTBXLib Design Package'}
 {$DESIGNONLY}
 {$IMPLICITBUILD ON}
+{$LIBSUFFIX AUTO}
 
 requires
-  tb2k_d12,
-  tb2kdsgn_d12,
+  tb2k,
+  tb2kdsgn,
   SpTBXLib,
   dclstd,
   vcl;

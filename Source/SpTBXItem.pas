@@ -7905,6 +7905,7 @@ begin
   // Change the readonly IsToolbar property using RTTI, the property must
   // be published.
   // Tip from: http://hallvards.blogspot.com/2004/05/hack-1-write-access-to-read-only.html
+  // PBoolean(Integer(Self) + (Integer(GetPropInfo(TSpTBXPopupWindowView, 'IsToolbar').GetProc) and $00FFFFFF))^ := Value;
   PBoolean(@(Self.IsToolbar))^ := Value;
 end;
 
