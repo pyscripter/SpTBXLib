@@ -9042,10 +9042,10 @@ begin
       // When it's called by the Toolbar the Gripper position should be corrected
       if (ARect.Left = PPIScale(-2)) and (ARect.Top = PPIScale(-2)) then
         OffsetRect(G, PPIScale(-2), PPIScale(-2));
+      // Hack!!
+//      if SkinManager.GetSkinType = sknDelphiStyle then
+//          OffsetRect(G, PPIScale(2), PPIScale(0));
     end;
-    // Hack!!
-    if SkinManager.GetSkinType = sknDelphiStyle then
-        OffsetRect(G, PPIScale(4), PPIScale(2));
 
     SpDrawXPStatusBar(ACanvas, ARect, G, CurrentPPI);
     if Toolbar.NeedsSeparatorRepaint then
