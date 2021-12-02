@@ -1,7 +1,7 @@
 unit SpTBXItem;
 
 {==============================================================================
-Version 2.5.8
+Version 2.5.9
 
 The contents of this file are subject to the SpTBXLib License; you may
 not use or distribute this file except in compliance with the
@@ -1523,9 +1523,7 @@ type
     procedure SetSystemMenuPopup(const Value: TSpTBXPopupEvent);
     function GetWindowState: TWindowState;
     procedure SetWindowState(const Value: TWindowState);
-    {$IF CompilerVersion >= 23} //for Delphi XE2 and up
     procedure CMStyleChanged(var Message: TMessage); message CM_STYLECHANGED;
-    {$IFEND}
     procedure CMTextChanged(var Message: TMessage); message CM_TEXTCHANGED;
     procedure WMSetCursor(var Message: TWMSetCursor); message WM_SETCURSOR;
     procedure WMSpSkinChange(var Message: TMessage); message WM_SPSKINCHANGE;
@@ -2276,33 +2274,33 @@ begin
             CurrentSkin.GetThemedElementDetails(skncToolbarItem, State, Details);
           cpCombo:
             case State of
-              sknsDisabled: Details := SpTBXThemeServices.GetElementDetails(ttbDropDownButtonDisabled);
-              sknsHotTrack: Details := SpTBXThemeServices.GetElementDetails(ttbDropDownButtonHot);
-              sknsPushed:   Details := SpTBXThemeServices.GetElementDetails(ttbDropDownButtonPressed);
-              sknsChecked:  Details := SpTBXThemeServices.GetElementDetails(ttbDropDownButtonChecked);
-              sknsCheckedAndHotTrack: Details := SpTBXThemeServices.GetElementDetails(ttbDropDownButtonCheckedHot);
+              sknsDisabled: Details := StyleServices.GetElementDetails(ttbDropDownButtonDisabled);
+              sknsHotTrack: Details := StyleServices.GetElementDetails(ttbDropDownButtonHot);
+              sknsPushed:   Details := StyleServices.GetElementDetails(ttbDropDownButtonPressed);
+              sknsChecked:  Details := StyleServices.GetElementDetails(ttbDropDownButtonChecked);
+              sknsCheckedAndHotTrack: Details := StyleServices.GetElementDetails(ttbDropDownButtonCheckedHot);
             else
-              Details := SpTBXThemeServices.GetElementDetails(ttbDropDownButtonNormal);
+              Details := StyleServices.GetElementDetails(ttbDropDownButtonNormal);
             end;
           cpSplitLeft:
             case State of
-              sknsDisabled: Details := SpTBXThemeServices.GetElementDetails(ttbSplitButtonDisabled);
-              sknsHotTrack: Details := SpTBXThemeServices.GetElementDetails(ttbSplitButtonHot);
-              sknsPushed:   Details := SpTBXThemeServices.GetElementDetails(ttbSplitButtonPressed);
-              sknsChecked:  Details := SpTBXThemeServices.GetElementDetails(ttbSplitButtonChecked);
-              sknsCheckedAndHotTrack: Details := SpTBXThemeServices.GetElementDetails(ttbSplitButtonCheckedHot);
+              sknsDisabled: Details := StyleServices.GetElementDetails(ttbSplitButtonDisabled);
+              sknsHotTrack: Details := StyleServices.GetElementDetails(ttbSplitButtonHot);
+              sknsPushed:   Details := StyleServices.GetElementDetails(ttbSplitButtonPressed);
+              sknsChecked:  Details := StyleServices.GetElementDetails(ttbSplitButtonChecked);
+              sknsCheckedAndHotTrack: Details := StyleServices.GetElementDetails(ttbSplitButtonCheckedHot);
             else
-              Details := SpTBXThemeServices.GetElementDetails(ttbSplitButtonNormal);
+              Details := StyleServices.GetElementDetails(ttbSplitButtonNormal);
             end;
           cpSplitRight:
             case State of
-              sknsDisabled: Details := SpTBXThemeServices.GetElementDetails(ttbSplitButtonDropDownDisabled);
-              sknsHotTrack: Details := SpTBXThemeServices.GetElementDetails(ttbSplitButtonDropDownHot);
-              sknsPushed:   Details := SpTBXThemeServices.GetElementDetails(ttbSplitButtonDropDownPressed);
-              sknsChecked:  Details := SpTBXThemeServices.GetElementDetails(ttbSplitButtonDropDownChecked);
-              sknsCheckedAndHotTrack: Details := SpTBXThemeServices.GetElementDetails(ttbSplitButtonDropDownCheckedHot);
+              sknsDisabled: Details := StyleServices.GetElementDetails(ttbSplitButtonDropDownDisabled);
+              sknsHotTrack: Details := StyleServices.GetElementDetails(ttbSplitButtonDropDownHot);
+              sknsPushed:   Details := StyleServices.GetElementDetails(ttbSplitButtonDropDownPressed);
+              sknsChecked:  Details := StyleServices.GetElementDetails(ttbSplitButtonDropDownChecked);
+              sknsCheckedAndHotTrack: Details := StyleServices.GetElementDetails(ttbSplitButtonDropDownCheckedHot);
             else
-              Details := SpTBXThemeServices.GetElementDetails(ttbSplitButtonDropDownNormal);
+              Details := StyleServices.GetElementDetails(ttbSplitButtonDropDownNormal);
             end;
         end;
         CurrentSkin.PaintThemedElementBackground(ACanvas, ARect, Details, DPI);
@@ -2471,18 +2469,9 @@ begin
         sknWindows, sknDelphiStyle:
           if SpIsWinVistaOrUp or (ItemInfo.SkinType = sknDelphiStyle) then begin
             // The checkbox frame is not painted
-            // [Old-Themes]
-            {$IF CompilerVersion >= 23} //for Delphi XE2 and up
-            if ItemInfo.State = sknsDisabled then Details := SpTBXThemeServices.GetElementDetails(tmPopupCheckBackgroundDisabled)
-            else if ItemInfo.ImageShown then Details := SpTBXThemeServices.GetElementDetails(tmPopupCheckBackgroundBitmap)
-            else Details := SpTBXThemeServices.GetElementDetails(tmPopupCheckBackgroundNormal);
-            {$ELSE}
-            Details.Element := teMenu;
-            Details.Part := MENU_POPUPCHECKBACKGROUND;
-            if ItemInfo.State = sknsDisabled then Details.State := MCB_DISABLED
-            else if ItemInfo.ImageShown then Details.State := MCB_BITMAP
-            else Details.State := MCB_NORMAL;
-            {$IFEND}
+            if ItemInfo.State = sknsDisabled then Details := StyleServices.GetElementDetails(tmPopupCheckBackgroundDisabled)
+            else if ItemInfo.ImageShown then Details := StyleServices.GetElementDetails(tmPopupCheckBackgroundBitmap)
+            else Details := StyleServices.GetElementDetails(tmPopupCheckBackgroundNormal);
             CurrentSkin.PaintThemedElementBackground(ACanvas, R, Details, ItemInfo.CurrentPPI);
           end
           else
@@ -2497,7 +2486,7 @@ begin
       if ItemInfo.SkinType = sknSkin then
         C := SkinManager.CurrentSkin.Options(skncMenuItem, ItemInfo.State).Borders.Color1
       else
-        C :=  CurrentSkin.GetThemedSystemColor(clBtnShadow);
+        C :=  StyleServices.GetSystemColor(clBtnShadow);
       R := ARect;
       R.Left := ARect.Right - SpPPIScale(14, ItemInfo.CurrentPPI);
       SpDrawLine(ACanvas, R.Left, R.Top + 1, R.Left, R.Bottom - 1, C);
@@ -2530,14 +2519,7 @@ begin
     sknWindows, sknDelphiStyle:
       if MenuItemStyle then begin
         if SpIsWinVistaOrUp or (SkinType = sknDelphiStyle) then begin
-          // [Old-Themes]
-          {$IF CompilerVersion >= 23} //for Delphi XE2 and up
-          Details := SpTBXThemeServices.GetElementDetails(tmPopupSeparator);
-          {$ELSE}
-          Details.Element := teMenu;
-          Details.Part := MENU_POPUPSEPARATOR;
-          Details.State := 0;
-          {$IFEND}
+          Details := StyleServices.GetElementDetails(tmPopupSeparator);
           VistaSeparatorSize := CurrentSkin.GetThemedElementSize(ACanvas, Details, DPI); // Returns a scaled value
           R := SpCenterRectVert(R, VistaSeparatorSize.cy);
           CurrentSkin.PaintThemedElementBackground(ACanvas, R, Details, DPI);
@@ -2671,14 +2653,7 @@ begin
           CurrentSkin.PaintThemedElementBackground(ACanvas, ARect, skncPopup, sknsNormal, DPI);
           // Now paint the borders, clip the background
           ExcludeClipRect(ACanvas.Handle, ARect.Left + 2, ARect.Top + 2, ARect.Right - 2, ARect.Bottom - 2);
-          // [Old-Themes]
-          {$IF CompilerVersion >= 23} //for Delphi XE2 and up
-          Details := SpTBXThemeServices.GetElementDetails(tmPopupBorders);
-          {$ELSE}
-          Details.Element := teMenu;
-          Details.Part := MENU_POPUPBORDERS;
-          Details.State := 0;
-          {$IFEND}
+          Details := StyleServices.GetElementDetails(tmPopupBorders);
           CurrentSkin.PaintThemedElementBackground(ACanvas, ARect, Details, DPI);
         finally
           RestoreDC(ACanvas.Handle, SaveIndex);
@@ -2864,18 +2839,18 @@ begin
         DPI := 96;
 
         R := ARect;
-        Details := SpTBXThemeServices.GetElementDetails(LeftBorder);
+        Details := StyleServices.GetElementDetails(LeftBorder);
         R.Top := ARect.Top + BorderSize.Y;
         R.Bottom := ARect.Bottom - BorderSize.Y;
         R.Right := R.Left + BorderSize.X;
         CurrentSkin.PaintThemedElementBackground(ACanvas, R, Details, DPI);
 
-        Details := SpTBXThemeServices.GetElementDetails(RightBorder);
+        Details := StyleServices.GetElementDetails(RightBorder);
         R.Right := ARect.Right;
         R.Left := R.Right - BorderSize.X;
         CurrentSkin.PaintThemedElementBackground(ACanvas, R, Details, DPI);
 
-        Details := SpTBXThemeServices.GetElementDetails(BottomBorder);
+        Details := StyleServices.GetElementDetails(BottomBorder);
         R := ARect;
         R.Top := R.Bottom - BorderSize.Y;
         CurrentSkin.PaintThemedElementBackground(ACanvas, R, Details, DPI);
@@ -2911,7 +2886,7 @@ begin
     sknWindows, sknDelphiStyle:
       begin
         if Vertical then Inc(ARect.Bottom, 1);  // Fix WindowsXP bug
-        ACanvas.Brush.Color := CurrentSkin.GetThemedSystemColor(clBtnFace);
+        ACanvas.Brush.Color := StyleServices.GetSystemColor(clBtnFace);
         ACanvas.FillRect(ARect);
         CurrentSkin.PaintThemedElementBackground(ACanvas, ARect, skncDock, Vertical, False, False, False, False, False, False, DPI);
       end;
@@ -2930,8 +2905,8 @@ begin
         Windows.DrawEdge(ACanvas.Handle, ARect, BDR_RAISEDINNER, BF_RECT or BF_ADJUST);
     sknWindows, sknDelphiStyle:
       if PaintBorders and Docked then  // Paint only the borders
-        if SkinManager.GetSkinType = sknDelphiStyle then begin  // XE2 Styles
-          SpDrawRectangle(ACanvas, ARect, 0, CurrentSkin.GetThemedSystemColor(cl3DLight), CurrentSkin.GetThemedSystemColor(cl3DDkShadow));
+        if SkinManager.GetSkinType = sknDelphiStyle then begin
+          SpDrawRectangle(ACanvas, ARect, 0, StyleServices.GetSystemColor(cl3DLight), StyleServices.GetSystemColor(cl3DDkShadow));
           // Paints the toolbar Style background
           // CurrentSkin.PaintThemedElementBackground(ACanvas, ARect, skncToolbar, True, False, False, False, False, False, False);
         end
@@ -2981,7 +2956,7 @@ begin
   else begin
     if Toolbar.Floating then begin
       if SkinManager.GetSkinType <> sknSkin then begin
-        if Toolbar.Color = clNone then ACanvas.Brush.Color := CurrentSkin.GetThemedSystemColor(clBtnFace)
+        if Toolbar.Color = clNone then ACanvas.Brush.Color := StyleServices.GetSystemColor(clBtnFace)
         else ACanvas.Brush.Color := Toolbar.Color;
         ACanvas.FillRect(ARect);
       end;
@@ -3117,12 +3092,12 @@ begin
         begin
           if SkinManager.GetSkinType = sknDelphiStyle then begin
             if Vertical then begin
-              Details := SpTBXThemeServices.GetElementDetails(trGripperVert);
+              Details := StyleServices.GetElementDetails(trGripperVert);
               Inc(GripR.Left, PP2);
               OffsetRect(GripR, 0, PP2);
             end
             else begin
-              Details := SpTBXThemeServices.GetElementDetails(trGripper);
+              Details := StyleServices.GetElementDetails(trGripper);
               Inc(GripR.Top, PP2);
               OffsetRect(GripR, PP2, 0);
             end;
@@ -3131,13 +3106,13 @@ begin
             // Since GetThemePartSize does not seem to work properly, assume we use default
             // WindowsXP themes where the gripper pattern repeats itself every 4 pixels
             if Vertical then begin
-              Details := SpTBXThemeServices.GetElementDetails(trGripperVert);
+              Details := StyleServices.GetElementDetails(trGripperVert);
               GripR := SpCenterRectVert(GripR, 6);  // Do not scale, Windows paints the grip with 4 pixels
               GripR.Right := GripR.Left + ((GripR.Right - GripR.Left) div 4) * 4;
               OffsetRect(GripR, 0, PP1);
             end
             else begin
-              Details := SpTBXThemeServices.GetElementDetails(trGripper);
+              Details := StyleServices.GetElementDetails(trGripper);
               GripR := SpCenterRectHoriz(GripR, 6);  // Do not scale, Windows paints the grip with 4 pixels
               GripR.Bottom := GripR.Top + ((GripR.Bottom - GripR.Top) div 4) * 4;
               OffsetRect(GripR, PP1, 0);
@@ -3148,7 +3123,7 @@ begin
           SaveIndex := SaveDC(ACanvas.Handle);
           try
             ExcludeClipRect(ACanvas.Handle, ARect.Left, ARect.Bottom - PP3, ARect.Right, ARect.Bottom);
-            SpTBXThemeServices.DrawElement(ACanvas.Handle, Details, GripR);
+            StyleServices.DrawElement(ACanvas.Handle, Details, GripR);
           finally
             RestoreDC(ACanvas.Handle, SaveIndex);
           end;
@@ -3156,7 +3131,7 @@ begin
           // Close button
           if Toolbar.CloseButtonWhenDocked then begin
             CurrentSkin.PaintThemedElementBackground(ACanvas, CloseR, skncToolbarItem, True, Toolbar.CloseButtonDown, Toolbar.CloseButtonHover, False, False, False, False, W.CurrentPPI);
-            SpDrawGlyphPattern(ACanvas, CloseR, gptToolbarClose, CurrentSkin.GetThemedSystemColor(clBtnText), W.CurrentPPI);
+            SpDrawGlyphPattern(ACanvas, CloseR, gptToolbarClose, StyleServices.GetSystemColor(clBtnText), W.CurrentPPI);
           end;
         end;
       sknSkin:
@@ -3193,31 +3168,27 @@ procedure SpDrawXPTooltipBackground(ACanvas: TCanvas; ARect: TRect);
 var
   ClipRect: TRect;
   Details: TThemedElementDetails;
-  {$IF CompilerVersion >= 23} //for Delphi XE2 and up
   C, CGradientStart, CGradientEnd: TColor;
-  {$IFEND}
 begin
   if SkinManager.GetSkinType = sknDelphiStyle then begin
     // ThemeServices.DrawElement doesn't paint the tooltip background when
     // using Delphi Custom Styles.
     // We need to manually paint the gradients.
     // Taken from THintWindow.Paint:
-    {$IF CompilerVersion >= 23} //for Delphi XE2 and up
-    Details := SpTBXThemeServices.GetElementDetails(thHintNormal);
-    if SpTBXThemeServices.GetElementColor(Details, ecGradientColor1, C) and (C <> clNone) then CGradientStart := C
+    Details := StyleServices.GetElementDetails(thHintNormal);
+    if StyleServices.GetElementColor(Details, ecGradientColor1, C) and (C <> clNone) then CGradientStart := C
     else CGradientStart := clInfoBk;
-    if SpTBXThemeServices.GetElementColor(Details, ecGradientColor2, C) and (C <> clNone) then CGradientEnd := C
+    if StyleServices.GetElementColor(Details, ecGradientColor2, C) and (C <> clNone) then CGradientEnd := C
     else CGradientEnd := clInfoBk;
     SpGradientFill(ACanvas, ARect, CGradientStart, CGradientEnd, True);
-    {$IFEND}
   end
   else
     if SpIsWinVistaOrUp and (SkinManager.GetSkinType = sknWindows) then begin
       // Paint Vista gradient background if themes enabled
       ClipRect := ARect;
       InflateRect(ARect, 4, 4);
-      Details := SpTBXThemeServices.GetElementDetails(tttStandardNormal);
-      SpTBXThemeServices.DrawElement(ACanvas.Handle, Details, ARect, @ClipRect);
+      Details := StyleServices.GetElementDetails(tttStandardNormal);
+      StyleServices.DrawElement(ACanvas.Handle, Details, ARect, @ClipRect);
     end
     else
       ACanvas.FillRect(ARect);
@@ -4811,10 +4782,8 @@ var
   WideHint, PrevWideHint: string;
   R, TextR, CursorR: TRect;
   PaintDefault: Boolean;
-  {$IF CompilerVersion >= 23} //for Delphi XE2 and up
   Details: TThemedElementDetails;
   C: TColor;
-  {$IFEND}
 begin
   HintInfo := TCMHintShow(Message).HintInfo;
   WideHint := GetHintText;
@@ -4832,13 +4801,11 @@ begin
   SpStockHintBitmap.Canvas.Font.Color := clInfoText;
   SpStockHintBitmap.Canvas.Font.Height :=
     MulDiv(SpStockHintBitmap.Canvas.Font.Height, PPIScale(96), Screen.PixelsPerInch);
-  {$IF CompilerVersion >= 23} //for Delphi XE2 and up
   if SkinManager.GetSkinType = sknDelphiStyle then begin
-    Details := SpTBXThemeServices.GetElementDetails(thHintNormal);
-    if SpTBXThemeServices.GetElementColor(Details, ecTextColor, C) and (C <> clNone) then
+    Details := StyleServices.GetElementDetails(thHintNormal);
+    if StyleServices.GetElementColor(Details, ecTextColor, C) and (C <> clNone) then
       SpStockHintBitmap.Canvas.Font.Color := C;
   end;
-  {$IFEND}
   SpStockHintBitmap.Canvas.Pen.Color := clBlack;
   SpStockHintBitmap.Canvas.Brush.Color := clInfoBk;
   TextR := Rect(0, 0, 1, 1);
@@ -5243,14 +5210,10 @@ var
   S: string;
 begin
   S := FStrings[AItem.Tag];
-  {$IF CompilerVersion >= 23} // for Delphi XE2 and up
   if SkinManager.IsValidDelphiStyle(S) then
     SkinManager.SetDelphiStyle(S)  // Set Delphi Style
   else
     SkinManager.SetSkin(S); // Set Skin
-  {$ELSE}
-  SkinManager.SetSkin(S); // Set Skin
-  {$IFEND}
 
   inherited;
 end;
@@ -5259,14 +5222,10 @@ procedure TSpTBXSkinGroupItem.DoSkinChange;
 var
   I: Integer;
 begin
-  {$IF CompilerVersion >= 23} // for Delphi XE2 and up
   if TStyleManager.IsCustomStyleActive then
     I := FStrings.IndexOf(TStyleManager.ActiveStyle.Name)
   else
     I := FStrings.IndexOf(SkinManager.CurrentSkinName);
-  {$ELSE}
-  I := FStrings.IndexOf(SkinManager.CurrentSkinName);
-  {$IFEND}
 
   if I > -1 then
     Items[I].Click;
@@ -5280,14 +5239,10 @@ begin
 
   inherited;
 
-  {$IF CompilerVersion >= 23} // for Delphi XE2 and up
   if TStyleManager.IsCustomStyleActive then
     FDefaultIndex := FStrings.IndexOf(TStyleManager.ActiveStyle.Name)
   else
     FDefaultIndex := FStrings.IndexOf(SkinManager.CurrentSkinName);
-  {$ELSE}
-  FDefaultIndex := FStrings.IndexOf(SkinManager.CurrentSkinName);
-  {$IFEND}
 end;
 
 procedure TSpTBXSkinGroupItem.WMSpSkinChange(var Message: TMessage);
@@ -6064,8 +6019,8 @@ begin
       try
         ACanvas.Handle := DC;
         // Paint BoundLines
-        HighlightC := CurrentSkin.GetThemedSystemColor(clBtnHighlight);
-        ShadowC := CurrentSkin.GetThemedSystemColor(clBtnShadow);
+        HighlightC := StyleServices.GetSystemColor(clBtnHighlight);
+        ShadowC := StyleServices.GetSystemColor(clBtnShadow);
         if blTop in BoundLines then begin
           SpDrawLine(ACanvas, R.Left, R.Top, R.Right, R.Top, ShadowC);
         end;
@@ -6441,11 +6396,11 @@ begin
     sknDelphiStyle:
       begin
         // GetThemedElementSize returns a scaled value
-        Details := SpTBXThemeServices.GetElementDetails(twSmallFrameBottomActive);
+        Details := StyleServices.GetElementDetails(twSmallFrameBottomActive);
         ElementSize := CurrentSkin.GetThemedElementSize(Canvas, Details, CurrentPPI);
         Result.Y := ElementSize.cy + 2;   // Do not scale, not sure why +2 is needed
 
-        Details := SpTBXThemeServices.GetElementDetails(twSmallFrameLeftActive);
+        Details := StyleServices.GetElementDetails(twSmallFrameLeftActive);
         ElementSize := CurrentSkin.GetThemedElementSize(Canvas, Details, CurrentPPI);
         Result.X := ElementSize.cx + 2;  // Do not scale, not sure why +2 is needed
       end;
@@ -7301,11 +7256,11 @@ begin
     sknDelphiStyle:
       begin
         // GetThemedElementSize returns a scaled value
-        Details := SpTBXThemeServices.GetElementDetails(twSmallFrameBottomActive);
+        Details := StyleServices.GetElementDetails(twSmallFrameBottomActive);
         ElementSize := CurrentSkin.GetThemedElementSize(Canvas, Details, CurrentPPI);
         Result.Y := ElementSize.cy + 2;  // Do not scale, not sure why +2 is needed
 
-        Details := SpTBXThemeServices.GetElementDetails(twSmallFrameLeftActive);
+        Details := StyleServices.GetElementDetails(twSmallFrameLeftActive);
         ElementSize := CurrentSkin.GetThemedElementSize(Canvas, Details, CurrentPPI);
         Result.X := ElementSize.cx + 2;  // Do not scale, not sure why +2 is needed
       end;
@@ -7531,9 +7486,9 @@ begin
               end;
             sknWindows, sknDelphiStyle:
               begin
-                if CloseButtonDown then Details := SpTBXThemeServices.GetElementDetails(twSmallCloseButtonPushed)
-                else if FCloseButtonHover then Details := SpTBXThemeServices.GetElementDetails(twSmallCloseButtonHot)
-                else Details := SpTBXThemeServices.GetElementDetails(twSmallCloseButtonNormal);
+                if CloseButtonDown then Details := StyleServices.GetElementDetails(twSmallCloseButtonPushed)
+                else if FCloseButtonHover then Details := StyleServices.GetElementDetails(twSmallCloseButtonHot)
+                else Details := StyleServices.GetElementDetails(twSmallCloseButtonNormal);
                 CurrentSkin.PaintThemedElementBackground(ACanvas, CloseR, Details, CurrentPPI);
               end;
             sknSkin:
@@ -7566,7 +7521,7 @@ end;
 
 procedure TSpTBXFloatingWindowParent.UpdateDwmNCSize;
 var
-  Style: {$IF CompilerVersion >= 23} NativeInt {$ELSE} Integer {$IFEND};
+  Style: NativeInt;
 begin
   if HandleAllocated then begin
     // newpy: on Windows 10 avoid using WS_THICKFRAME altogether.
@@ -7965,7 +7920,7 @@ begin
     if SkinManager.GetSkinType = sknSkin then
       PatternColor := GetTextColor(ItemInfo.State)
     else
-      PatternColor := CurrentSkin.GetThemedSystemColor(clBtnText);
+      PatternColor := StyleServices.GetSystemColor(clBtnText);
     if not ItemInfo.IsVertical then
       SpDrawGlyphPattern(Canvas, R2, gptChevron, PatternColor, View.Window.CurrentPPI)
     else
@@ -7975,7 +7930,7 @@ begin
     if SkinManager.GetSkinType = sknSkin then
       PatternColor := GetTextColor(ItemInfo.State)
     else
-      PatternColor := CurrentSkin.GetThemedSystemColor(clBtnHighlight);
+      PatternColor := StyleServices.GetSystemColor(clBtnHighlight);
     OffsetRect(R2, PPIScale(1), PPIScale(1));
     if not ItemInfo.IsVertical then
       SpDrawGlyphPattern(Canvas, R2, gptChevron, PatternColor, View.Window.CurrentPPI)
@@ -7985,7 +7940,7 @@ begin
     if SkinManager.GetSkinType = sknSkin then
       PatternColor := GetTextColor(ItemInfo.State)
     else
-      PatternColor := CurrentSkin.GetThemedSystemColor(clBtnShadow);
+      PatternColor := StyleServices.GetSystemColor(clBtnShadow);
     OffsetRect(R2, -PPIScale(1), -PPIScale(1));
     if not ItemInfo.IsVertical then
       SpDrawGlyphPattern(Canvas, R2, gptChevron, PatternColor, View.Window.CurrentPPI)
@@ -8269,7 +8224,7 @@ begin
     end
     else
       if Color = clNone then
-        SpFillRect(ACanvas, R, CurrentSkin.GetThemedSystemColor(clBtnFace))
+        SpFillRect(ACanvas, R, StyleServices.GetSystemColor(clBtnFace))
       else
         SpFillRect(ACanvas, R, Color);
 
@@ -8352,7 +8307,7 @@ begin
       // Only erase background if we're not double buffering or painting to memory
       if not DoubleBuffered or (TMessage(Message).wParam = WPARAM(TMessage(Message).lParam)) then
         if Color = clNone then
-          SpFillRect(ACanvas, R, CurrentSkin.GetThemedSystemColor(clBtnFace))
+          SpFillRect(ACanvas, R, StyleServices.GetSystemColor(clBtnFace))
         else
           SpFillRect(ACanvas, R, Color);
 
@@ -9323,14 +9278,9 @@ begin
   end;
 
   if Assigned(Application) and Assigned(FNewAppWndProc) then begin
-    {$IF CompilerVersion >= 23}
-    // XE2 and up
     // GetWindowLongPtr/SetWindowLongPtr is defined on Delphi 2009 and up,
     // but it's only needed when compiling on 64 bit.
     SetWindowLongPtr(Application.Handle, GWLP_WNDPROC, LONG_PTR(FOldAppWndProc));
-    {$ELSE}
-    SetWindowLong(Application.Handle, GWL_WNDPROC, Longint(FOldAppWndProc));
-    {$IFEND}
     Classes.FreeObjectInstance(FNewAppWndProc);
     FNewAppWndProc := nil;
   end;
@@ -9360,19 +9310,12 @@ begin
     if not (csDesigning in ComponentState) and (Application.Handle <> 0) and
       (Application.MainForm = nil) and (FOldAppWndProc = nil) then
     begin
-      // When Application.MainForm asume FParentForm as the MainForm
-      {$IF CompilerVersion >= 23}
-      // XE2 and up
+      // When Application.MainForm assume FParentForm as the MainForm
       // GetWindowLongPtr/SetWindowLongPtr is defined on Delphi 2009 and up,
       // but it's only needed when compiling on 64 bit.
       FOldAppWndProc := Pointer(GetWindowLongPtr(Application.Handle, GWL_WNDPROC));
       FNewAppWndProc := Classes.MakeObjectInstance(AppWndProc);
       SetWindowLongPtr(Application.Handle, GWLP_WNDPROC, LONG_PTR(FNewAppWndProc));
-      {$ELSE}
-      FOldAppWndProc := Pointer(GetWindowLong(Application.Handle, GWL_WNDPROC));
-      FNewAppWndProc := Classes.MakeObjectInstance(AppWndProc);
-      SetWindowLong(Application.Handle, GWL_WNDPROC, Longint(FNewAppWndProc));
-      {$IFEND}
     end;
 
     ChangeTitleBarState(Active);
@@ -9390,13 +9333,10 @@ begin
 end;
 
 procedure TSpTBXCustomTitleBar.UpdateRegion;
-{$IF CompilerVersion >= 23} //for Delphi XE2 and up
 var
   TempRegion: HRGN;
   R: TRect;
-{$IFEND}
 begin
-  {$IF CompilerVersion >= 23} //for Delphi XE2 and up
   // Update the NC region of the Main form when using Delphi styles
   if not Assigned(FParentForm) then Exit;
   FUpdateRegionCalled := True;
@@ -9406,7 +9346,7 @@ begin
       FRegion := 0
     else begin
       R := Rect(0, 0, Width, Height);
-      SpTBXThemeServices.GetElementRegion(SpTBXThemeServices.GetElementDetails(twCaptionActive), R, FRegion);
+      StyleServices.GetElementRegion(StyleServices.GetElementDetails(twCaptionActive), R, FRegion);
     end;
     SetWindowRgn(FParentForm.Handle, FRegion, True);
   finally
@@ -9414,7 +9354,6 @@ begin
     if TempRegion <> 0 then
       DeleteObject(TempRegion);
   end;
-  {$IFEND}
 end;
 
 procedure TSpTBXCustomTitleBar.AppWndProc(var Msg: TMessage);
@@ -9571,7 +9510,7 @@ end;
 procedure TSpTBXCustomTitleBar.ChangeTitleBarState(Activate: Boolean);
 var
   FloatingBorderSize: TPoint;
-  Style: {$IF CompilerVersion >= 23} NativeInt {$ELSE} Integer {$IFEND};
+  Style: NativeInt;
   RestoreR: TRect;
   WState: TWindowState;
   OnParentFormShow: TNotifyEvent;
@@ -9711,11 +9650,11 @@ begin
     sknDelphiStyle:
       begin
         // GetThemedElementSize returns a scaled value
-        Details := SpTBXThemeServices.GetElementDetails(twFrameBottomActive);
+        Details := StyleServices.GetElementDetails(twFrameBottomActive);
         ElementSize := CurrentSkin.GetThemedElementSize(Canvas, Details, CurrentPPI);
-        Result.Y := ElementSize.cy + 2;
+        Result.Y := ElementSize.cy;
 
-        Details := SpTBXThemeServices.GetElementDetails(twFrameLeftActive);
+        Details := StyleServices.GetElementDetails(twFrameLeftActive);
         ElementSize := CurrentSkin.GetThemedElementSize(Canvas, Details, CurrentPPI);
         Result.X := ElementSize.cx + 2;
       end;
@@ -9871,7 +9810,6 @@ begin
   inherited;
 end;
 
-{$IF CompilerVersion >= 23} //for Delphi XE2 and up
 procedure TSpTBXCustomTitleBar.CMStyleChanged(var Message: TMessage);
 begin
   inherited;
@@ -9879,7 +9817,6 @@ begin
   if HandleAllocated then
     RedrawWindow(Handle, nil, 0, RDW_FRAME or RDW_INVALIDATE or RDW_ERASE);
 end;
-{$IFEND}
 
 procedure TSpTBXCustomTitleBar.CMTextChanged(var Message: TMessage);
 begin
@@ -9987,14 +9924,11 @@ begin
   MDIButtonsImgList := TImageList.Create(nil);
   MDIButtonsImgList.SetSize(8, 8);
 
-  {$IF CompilerVersion >= 23}
-  // XE2 and up
   // When Styles are used WM_NCHITTEST and WM_NCCALCSIZE are handled by
   // TFormStyleHook. We need to override the handling by re-registering
   // the hook by using an empty style hook (TStyleHook)
   TCustomStyleEngine.UnRegisterStyleHook(TSpTBXFloatingWindowParent, TStyleHook); // Re-register
   TCustomStyleEngine.RegisterStyleHook(TSpTBXFloatingWindowParent, TStyleHook);
-  {$IFEND}
 end;
 
 procedure FinalizeStock;

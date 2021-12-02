@@ -1,7 +1,7 @@
 unit SpTBXDkPanels;
 
 {==============================================================================
-Version 2.5.8
+Version 2.5.9
 
 The contents of this file are subject to the SpTBXLib License; you may
 not use or distribute this file except in compliance with the
@@ -1073,9 +1073,7 @@ end;
 procedure SpDrawXPDockablePanelBody(ACanvas: TCanvas; ARect: TRect; IsActive, IsFloating: Boolean);
 var
   C: TColor;
-  {$IF CompilerVersion >= 23} // for Delphi XE2 and up
   Details: TThemedElementDetails;
-  {$IFEND}
 begin
   case SkinManager.GetSkinType of
     sknNone, sknWindows:
@@ -1094,15 +1092,13 @@ begin
       end;
     sknDelphiStyle:
       begin
-        {$IF CompilerVersion >= 23} // for Delphi XE2 and up
         if CurrentSkin.GetThemedElementDetails(skncDockablePanel, sknsNormal, Details) then begin
-          if SpTBXThemeServices.GetElementColor(Details, ecFillColor, C) and (C <> clNone) then
+          if StyleServices.GetElementColor(Details, ecFillColor, C) and (C <> clNone) then
             ACanvas.Brush.Color := C
           else
-            ACanvas.Brush.Color := CurrentSkin.GetThemedSystemColor(clBtnFace);
+            ACanvas.Brush.Color := StyleServices.GetSystemColor(clBtnFace);
           ACanvas.FillRect(ARect);
         end;
-        {$IFEND}
       end;
     sknSkin:
       CurrentSkin.PaintBackground(ACanvas, ARect, skncDockablePanel, sknsNormal, True, not IsFloating);
@@ -3554,11 +3550,11 @@ begin
   else
     InflateRect(R, 2, -1);
   OffsetRect(R, 1, 1);
-  FrameBrush := CreateSolidBrush(ColorToRGB(CurrentSkin.GetThemedSystemColor(clBtnHighlight)));
+  FrameBrush := CreateSolidBrush(ColorToRGB(StyleServices.GetSystemColor(clBtnHighlight)));
   FrameRect(Canvas.Handle, R, FrameBrush);
   DeleteObject(FrameBrush);
   OffsetRect(R, -2, -2);
-  FrameBrush := CreateSolidBrush(ColorToRGB(CurrentSkin.GetThemedSystemColor(clBtnShadow)));
+  FrameBrush := CreateSolidBrush(ColorToRGB(StyleServices.GetSystemColor(clBtnShadow)));
   FrameRect(Canvas.Handle, R, FrameBrush);
   DeleteObject(FrameBrush);
 end;
@@ -3578,7 +3574,7 @@ begin
       CurrentSkin.PaintBackground(Canvas, ClientR, skncSplitter, sknsNormal, True, False, IsVertical)
     else begin
       if Color = clNone then
-        Canvas.Brush.Color := CurrentSkin.GetThemedSystemColor(clBtnFace)
+        Canvas.Brush.Color := StyleServices.GetSystemColor(clBtnFace)
       else
         Canvas.Brush.Color := Color;
       SpFillRect(Canvas, ClientR, Canvas.Brush.Color);
@@ -3601,8 +3597,8 @@ begin
       SpDrawXPGrip(Canvas, DragHandleR, C1, C2, CurrentPPI);
     end
     else begin
-      C1 := CurrentSkin.GetThemedSystemColor(clBtnShadow);
-      C2 := CurrentSkin.GetThemedSystemColor(clWindow);
+      C1 := StyleServices.GetSystemColor(clBtnShadow);
+      C2 := StyleServices.GetSystemColor(clWindow);
       SpDrawXPGrip(Canvas, DragHandleR, C1, C2, CurrentPPI);
     end;
   end;
