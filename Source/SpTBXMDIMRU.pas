@@ -346,7 +346,7 @@ begin
   if (PaintStage = pstPrePaint) and (AImageList = MDIButtonsImgList) and
     (AImageIndex >= 0) and (AImageIndex <= 3) then
   begin
-    case SkinManager.GetSkinType of
+    case SkinManager.GetSkinType(nil) of
       sknNone:
         begin
           PaintDefault := False;
