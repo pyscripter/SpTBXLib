@@ -460,6 +460,9 @@ procedure SpTBIniLoadPositions(const OwnerComponent: TComponent; const IniFile: 
 procedure SpTBIniSavePositions(const OwnerComponent: TComponent; const Filename, SectionNamePrefix: string); overload;
 procedure SpTBIniSavePositions(const OwnerComponent: TComponent; const IniFile: TCustomIniFile; const SectionNamePrefix: string); overload;
 
+// You can call SpDPResize to resize a dock panel manually
+function SpDPResize(DP: TSpTBXCustomDockablePanel; NewSize: Integer; ResizeType: TSpTBXDPResizeType = dprtManualResize): Boolean;
+
 implementation
 
 uses
