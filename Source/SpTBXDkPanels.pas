@@ -453,8 +453,8 @@ procedure SpDrawXPDockablePanelTitleBar(AControl: TControl; ACanvas: TCanvas; AR
 procedure SpDrawXPDockablePanelBody(AControl: TControl; ACanvas: TCanvas; ARect: TRect; IsActive, IsFloating: Boolean);
 
 { Toolbar Load/Save Position helpers }
-procedure SpTBRegLoadPositions(const OwnerComponent: TComponent; const RootKey: DWORD; const BaseRegistryKey: string);
-procedure SpTBRegSavePositions(const OwnerComponent: TComponent; const RootKey: DWORD; const BaseRegistryKey: string);
+procedure SpTBRegLoadPositions(const OwnerComponent: TComponent; const RootKey: HKEY; const BaseRegistryKey: string);
+procedure SpTBRegSavePositions(const OwnerComponent: TComponent; const RootKey: HKEY; const BaseRegistryKey: string);
 procedure SpTBIniLoadPositions(const OwnerComponent: TComponent; const Filename, SectionNamePrefix: string); overload;
 procedure SpTBIniLoadPositions(const OwnerComponent: TComponent; const IniFile: TCustomIniFile; const SectionNamePrefix: string); overload;
 procedure SpTBIniSavePositions(const OwnerComponent: TComponent; const Filename, SectionNamePrefix: string); overload;
@@ -1280,7 +1280,7 @@ begin
 end;
 
 procedure SpTBRegLoadPositions(const OwnerComponent: TComponent;
-  const RootKey: DWORD; const BaseRegistryKey: string);
+  const RootKey: HKEY; const BaseRegistryKey: string);
 var
   Reg: TRegistryIniFile;
   LockedDocks: TList;  
@@ -1302,7 +1302,7 @@ begin
 end;
 
 procedure SpTBRegSavePositions(const OwnerComponent: TComponent;
-  const RootKey: DWORD; const BaseRegistryKey: string);
+  const RootKey: HKEY; const BaseRegistryKey: string);
 var
   Reg: TRegistryIniFile;
   LockedDocks: TList;
