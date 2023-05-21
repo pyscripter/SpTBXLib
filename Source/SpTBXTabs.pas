@@ -370,6 +370,7 @@ type
     procedure DefineProperties(Filer: TFiler); override;
     function GetToolbarClass: TSpTBXToolbarClass; override;
     procedure Loaded; override;
+    procedure Resize; override;
 
     property Color default clNone;
     property ParentColor default False;
@@ -2418,6 +2419,17 @@ procedure TSpTBXCustomTabSet.ReadHiddenItems(Reader: TReader);
 begin
   if Reader.ReadValue = vaCollection then
     Reader.ReadCollection(Toolbar.FHiddenTabs);
+end;
+
+procedure TSpTBXCustomTabSet.Resize;
+begin
+  inherited;
+  // Make the selected tab always visible, make it an option?
+  if not TabAutofit then
+  begin
+    Toolbar.RightAlignItems;
+    MakeVisible(ActiveTab);
+  end;
 end;
 
 procedure TSpTBXCustomTabSet.WriteHiddenItems(Writer: TWriter);
