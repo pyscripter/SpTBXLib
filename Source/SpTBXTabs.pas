@@ -1651,7 +1651,6 @@ procedure TSpTBXTabToolbar.Resize;
 begin
   inherited;
   // Make the selected tab always visible
-  RightAlignItems;
   if FActiveTabVisibleOnResize and not TabAutofit then
     MakeVisible(ActiveTab);
 end;
