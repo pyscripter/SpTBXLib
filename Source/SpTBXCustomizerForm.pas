@@ -182,11 +182,6 @@ procedure TSpTBXCustomizeForm.FormCreate(Sender: TObject);
 begin
   ClosePanel.Visible := not Embedded;
 
-  // Setup the listboxes
-  if Assigned(Customizer.Images) then begin
-    lbCommands.ItemHeight := Customizer.Images.Height + PPIScale(4);
-    lbShortcuts.ItemHeight := lbCommands.ItemHeight;
-  end;
   // Hide the Icon Options combobox if necessary
   if not Assigned(Customizer.OnIconOptionsChange) then begin
     cbIconLabel.Visible := False;
@@ -199,6 +194,11 @@ end;
 
 procedure TSpTBXCustomizeForm.FormShow(Sender: TObject);
 begin
+  // Setup the listboxes
+  if Assigned(Customizer.Images) then begin
+    lbCommands.ItemHeight := Customizer.Images.Height + PPIScale(4);
+    lbShortcuts.ItemHeight := lbCommands.ItemHeight;
+  end;
   SpTBXTabControl1.ActiveTabIndex := 0;
 end;
 
