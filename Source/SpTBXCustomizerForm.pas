@@ -191,6 +191,8 @@ procedure TSpTBXCustomizeForm.FormCreate(Sender: TObject);
 begin
   {$IF CompilerVersion >= 33} // for Delphi Rio and up
   FInternalVirtualImage := TVirtualImageList.Create(Self);
+  var Size := MulDiv(16, FCurrentPPI, Screen.DefaultPixelsPerInch);
+  FInternalVirtualImage.SetSize(Size, Size);
   {$IFEND}
   FCustomizerImages := Customizer.Images;
 

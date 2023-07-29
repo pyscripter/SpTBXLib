@@ -28,8 +28,6 @@ object SpTBXCustomizeForm: TSpTBXCustomizeForm
     Height = 286
     Align = alClient
     ActiveTabIndex = 0
-    ExplicitWidth = 343
-    ExplicitHeight = 285
     HiddenItems = <>
     object tabToolbars: TSpTBXTabItem
       Caption = 'Toolbars'
@@ -48,8 +46,6 @@ object SpTBXCustomizeForm: TSpTBXCustomizeForm
       Height = 261
       Caption = 'Shortcuts'
       ImageIndex = -1
-      ExplicitWidth = 343
-      ExplicitHeight = 260
       DesignSize = (
         347
         261)
@@ -57,40 +53,36 @@ object SpTBXCustomizeForm: TSpTBXCustomizeForm
       object SpTBXPanel5: TSpTBXPanel
         Left = 8
         Top = 227
-        Width = 243
+        Width = 242
         Height = 22
         Anchors = [akLeft, akRight, akBottom]
         TabOrder = 1
         HotTrack = True
-        ExplicitTop = 226
-        ExplicitWidth = 239
         object Panel1: TPanel
           Left = 2
           Top = 2
-          Width = 239
+          Width = 238
           Height = 18
           Align = alClient
           BevelOuter = bvNone
           TabOrder = 0
-          ExplicitWidth = 235
           DesignSize = (
-            239
+            238
             18)
           object HotKey1: THotKey
             Left = -2
             Top = -2
-            Width = 245
+            Width = 244
             Height = 21
             Anchors = [akLeft, akTop, akRight, akBottom]
             HotKey = 0
             Modifiers = []
             TabOrder = 0
-            ExplicitWidth = 241
           end
         end
       end
       object ChangeShortcut: TSpTBXButton
-        Left = 257
+        Left = 256
         Top = 226
         Width = 75
         Height = 25
@@ -98,20 +90,16 @@ object SpTBXCustomizeForm: TSpTBXCustomizeForm
         Anchors = [akRight, akBottom]
         TabOrder = 2
         OnClick = ChangeShortcutClick
-        ExplicitLeft = 253
-        ExplicitTop = 225
       end
       object lbShortcuts: TSpTBXListBox
         Left = 8
         Top = 8
-        Width = 326
+        Width = 325
         Height = 208
         Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 0
         OnClick = lbShortcutsClick
         OnDrawItem = lbShortcutsDrawItem
-        ExplicitWidth = 322
-        ExplicitHeight = 207
       end
     end
     object SpTBXTabSheet3: TSpTBXTabSheet
@@ -121,8 +109,6 @@ object SpTBXCustomizeForm: TSpTBXCustomizeForm
       Height = 261
       Caption = 'Commands'
       ImageIndex = -1
-      ExplicitWidth = 343
-      ExplicitHeight = 260
       DesignSize = (
         347
         261)
@@ -130,7 +116,7 @@ object SpTBXCustomizeForm: TSpTBXCustomizeForm
       object SpTBXLabel3: TSpTBXLabel
         Left = 8
         Top = 213
-        Width = 326
+        Width = 325
         Height = 44
         Caption = 
           'To add command buttons, drag and drop commands onto a toolbar. T' +
@@ -139,13 +125,11 @@ object SpTBXCustomizeForm: TSpTBXCustomizeForm
         Anchors = [akLeft, akRight, akBottom]
         AutoSize = False
         Wrapping = twWrap
-        ExplicitTop = 212
-        ExplicitWidth = 322
       end
       object lbCommands: TSpTBXListBox
         Left = 8
         Top = 8
-        Width = 326
+        Width = 325
         Height = 202
         Anchors = [akLeft, akTop, akRight, akBottom]
         DragMode = dmAutomatic
@@ -155,8 +139,6 @@ object SpTBXCustomizeForm: TSpTBXCustomizeForm
         OnDrawItem = lbCommandsDrawItem
         OnEndDrag = lbCommandsEndDrag
         OnStartDrag = lbCommandsStartDrag
-        ExplicitWidth = 322
-        ExplicitHeight = 201
       end
     end
     object SpTBXTabSheet1: TSpTBXTabSheet
@@ -166,22 +148,18 @@ object SpTBXCustomizeForm: TSpTBXCustomizeForm
       Height = 261
       Caption = 'Toolbars'
       ImageIndex = -1
-      ExplicitWidth = 343
-      ExplicitHeight = 260
       DesignSize = (
         347
         261)
       TabItem = 'tabToolbars'
       object SpTBXGroupBox1: TSpTBXGroupBox
-        Left = 171
+        Left = 170
         Top = 2
         Width = 161
         Height = 191
         Caption = 'Options'
         Anchors = [akTop, akRight, akBottom]
         TabOrder = 1
-        ExplicitLeft = 167
-        ExplicitHeight = 190
         object cbText: TSpTBXComboBox
           Left = 6
           Top = 66
@@ -236,15 +214,13 @@ object SpTBXCustomizeForm: TSpTBXCustomizeForm
         end
       end
       object SpTBXGroupBox2: TSpTBXGroupBox
-        Left = 171
+        Left = 170
         Top = 200
         Width = 161
         Height = 49
         Caption = '&Skins'
         Anchors = [akRight, akBottom]
         TabOrder = 2
-        ExplicitLeft = 167
-        ExplicitTop = 199
         object cbSkins: TSpTBXComboBox
           Left = 6
           Top = 20
@@ -259,14 +235,12 @@ object SpTBXCustomizeForm: TSpTBXCustomizeForm
       object lbToolbars: TSpTBXCheckListBox
         Left = 8
         Top = 8
-        Width = 154
+        Width = 153
         Height = 241
         Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 0
         OnClick = lbToolbarsClick
         OnClickCheck = lbToolbarsClickCheck
-        ExplicitWidth = 150
-        ExplicitHeight = 240
       end
     end
   end
@@ -279,13 +253,11 @@ object SpTBXCustomizeForm: TSpTBXCustomizeForm
     TabOrder = 1
     Borders = False
     TBXStyleBackground = True
-    ExplicitTop = 285
-    ExplicitWidth = 343
     DesignSize = (
       347
       35)
     object CloseButton: TSpTBXButton
-      Left = 260
+      Left = 259
       Top = 4
       Width = 78
       Height = 25
@@ -293,7 +265,6 @@ object SpTBXCustomizeForm: TSpTBXCustomizeForm
       Anchors = [akRight, akBottom]
       TabOrder = 0
       OnClick = CloseButtonClick
-      ExplicitLeft = 256
     end
     object ResetButton: TSpTBXButton
       Left = 7
