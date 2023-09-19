@@ -1,7 +1,7 @@
 unit SpTBXDkPanels;
 
 {==============================================================================
-Version 2.5.9
+Version 2.5.10
 
 The contents of this file are subject to the SpTBXLib License; you may
 not use or distribute this file except in compliance with the
@@ -50,7 +50,7 @@ interface
 
 {$BOOLEVAL OFF}   // Unit depends on short-circuit boolean evaluation
 {$IF CompilerVersion >= 25} // for Delphi XE4 and up
-  {$LEGACYIFEND ON} // requires $IF to be terminated with $ENDIF instead of $IFEND
+  {$LEGACYIFEND ON} // requires $IF to be terminated by $IFEND (XE4+ allows both $ENDIF and $IFEND)
 {$IFEND}
 
 uses
@@ -459,9 +459,6 @@ procedure SpTBIniLoadPositions(const OwnerComponent: TComponent; const Filename,
 procedure SpTBIniLoadPositions(const OwnerComponent: TComponent; const IniFile: TCustomIniFile; const SectionNamePrefix: string); overload;
 procedure SpTBIniSavePositions(const OwnerComponent: TComponent; const Filename, SectionNamePrefix: string); overload;
 procedure SpTBIniSavePositions(const OwnerComponent: TComponent; const IniFile: TCustomIniFile; const SectionNamePrefix: string); overload;
-
-// You can call SpDPResize to resize a dock panel manually
-function SpDPResize(DP: TSpTBXCustomDockablePanel; NewSize: Integer; ResizeType: TSpTBXDPResizeType = dprtManualResize): Boolean;
 
 implementation
 
@@ -1467,8 +1464,7 @@ begin
   // See TCustomForm.ScaleForPPIRect, we need to post a message to handle it
   // asynchronously to make sure the parent Form and the MultiDock are scaled
   // first.
-  if M <> D then
-    PostMessage(Self.Handle, CM_SPCHANGESCALE, M, D);
+  PostMessage(Self.Handle, CM_SPCHANGESCALE, M, D);
 end;
 
 procedure TSpTBXCustomMultiDock.CMSPChangeScale(var Message: TMessage);
@@ -3544,24 +3540,6 @@ begin
   end;
 end;
 
-procedure PaintSplitterFrame(AControl: TControl; Canvas : TCanvas; IsVertical: Boolean; var R: TRect);
-var
-  FrameBrush: HBRUSH;
-begin
-  if IsVertical then
-    InflateRect(R, -1, 2)
-  else
-    InflateRect(R, 2, -1);
-  OffsetRect(R, 1, 1);
-  FrameBrush := CreateSolidBrush(ColorToRGB(SpTBXStyleServices(AControl).GetSystemColor(clBtnHighlight)));
-  FrameRect(Canvas.Handle, R, FrameBrush);
-  DeleteObject(FrameBrush);
-  OffsetRect(R, -2, -2);
-  FrameBrush := CreateSolidBrush(ColorToRGB(SpTBXStyleServices(AControl).GetSystemColor(clBtnShadow)));
-  FrameRect(Canvas.Handle, R, FrameBrush);
-  DeleteObject(FrameBrush);
-end;
-
 procedure TSpTBXCustomSplitter.Paint;
 var
   ClientR, R, DragHandleR: TRect;
@@ -3581,7 +3559,6 @@ begin
       else
         Canvas.Brush.Color := Color;
       SpFillRect(Canvas, ClientR, Canvas.Brush.Color);
-      PaintSplitterFrame(Self, Canvas, IsVertical, ClientR);
     end;
 
     // Paint grip
