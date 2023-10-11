@@ -31,7 +31,8 @@ requires
   vcl,
   tb2k,
   rtl,
-  vclx;
+  vclx,
+  vclwinx;
 
 contains
   SpTBXItem in '..\..\Source\SpTBXItem.pas',

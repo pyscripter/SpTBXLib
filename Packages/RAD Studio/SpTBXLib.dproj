@@ -83,9 +83,10 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="vcl.dcp"/>
-        <DCCReference Include="tb2k_d12.dcp"/>
+        <DCCReference Include="tb2k.dcp"/>
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="vclx.dcp"/>
+        <DCCReference Include="vclwinx.dcp"/>
         <DCCReference Include="..\..\Source\SpTBXItem.pas"/>
         <DCCReference Include="..\..\Source\SpTBXControls.pas"/>
         <DCCReference Include="..\..\Source\SpTBXTabs.pas"/>
@@ -155,9 +156,6 @@
                 </VersionInfoKeys>
             </Delphi.Personality>
             <Platforms>
-                <Platform value="Android">False</Platform>
-                <Platform value="iOSDevice32">False</Platform>
-                <Platform value="iOSSimulator">False</Platform>
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">True</Platform>
             </Platforms>

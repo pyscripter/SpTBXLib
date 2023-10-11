@@ -49,8 +49,8 @@
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="..\..\Source\SpTBXReg.dcr"/>
-			<DCCReference Include="tb2k_d12.dcp"/>
-			<DCCReference Include="tb2kdsgn_d12.dcp"/>
+			<DCCReference Include="tb2k.dcp"/>
+			<DCCReference Include="tb2kdsgn.dcp"/>
 			<DCCReference Include="SpTBXLib.dcp"/>
 			<DCCReference Include="dclstd.dcp"/>
 			<DCCReference Include="vcl.dcp"/>

@@ -1700,6 +1700,18 @@ begin
     Exit;
   end;
 
+  // When component loading TTBControlItem has no valid bounds, do not
+  // right align, otherwise the chevron item is showed, issue number #109
+  for I := 0 to View.ViewerCount - 1 do begin
+    IV := View.Viewers[I];
+    if IV.Item is TTBControlItem then
+      if not IV.Show then
+        Exit
+      else
+        if IV.BoundsRect.IsEmpty then
+          Exit;
+  end;
+
   FState := FState + [tstRightAligning];
   View.ValidatePositions;
   View.BeginUpdate;
