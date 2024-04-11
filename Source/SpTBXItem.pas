@@ -3124,7 +3124,7 @@ begin
           SaveIndex := SaveDC(ACanvas.Handle);
           try
             ExcludeClipRect(ACanvas.Handle, ARect.Left, ARect.Bottom - PP3, ARect.Right, ARect.Bottom);
-            SpTBXStyleServices(Toolbar).DrawElement(ACanvas.Handle, Details, GripR);
+            SpTBXStyleServices(Toolbar).DrawElement(ACanvas.Handle, Details, GripR, nil{$IF CompilerVersion >= 33}, W.CurrentPPI{$IFEND});
           finally
             RestoreDC(ACanvas.Handle, SaveIndex);
           end;
