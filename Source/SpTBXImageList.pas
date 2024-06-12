@@ -51,6 +51,7 @@ uses
   ImgList,
   {$IF CompilerVersion >= 24} // for Delphi XE3 and up
   System.UITypes,
+  Vcl.Controls, // Vcl.Controls contains TImageList under XE4
   {$IFEND}
   {$IF CompilerVersion >= 33} // for Delphi Rio and up
   // TImageCollection and TVirtualImagelist introduced on Rio
@@ -158,7 +159,7 @@ begin
   ImageList := TVirtualImageList.Create(AOwner);
   TVirtualImageList(ImageList).ImageCollection := ImageCollection;
   {$ELSE}
-  ImageList := TImageList.Create(Self);
+  ImageList := TImageList.Create(AOwner);
   {$IFEND}
 end;
 
