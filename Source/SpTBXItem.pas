@@ -4607,7 +4607,7 @@ begin
           DropDownC := GetTextColor(ItemInfo.ComboState);
         if ItemInfo.IsSunkenCaption then
           P := Point(P.X + PPIScale(1), P.Y + PPIScale(1));
-        SpDrawArrow(Canvas, P.X, P.Y, DropDownC, not ItemInfo.IsVertical, False, PPIScale(2));
+        SpDrawArrow(Canvas, P.X, P.Y, DropDownC, not ItemInfo.IsVertical, False, PPIScale(4));
       end;
       if not ItemInfo.IsSplit and not IsSpecialDropDown then begin
         if View.Orientation <> tbvoVertical then Dec(R.Right, Self.tbDropdownArrowWidth)
